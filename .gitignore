@@ -1,0 +1,80 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.env
+.venv
+env/
+venv/
+ENV/
+dist/
+build/
+*.egg-info/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# PyCharm
+.idea/
+*.iml
+*.iws
+.idea_modules/
+
+# VS Code
+.vscode/
+
+# macOS
+.DS_Store
+
+# Project specific
+notebooks/*
+!notebooks/.gitkeep
+# TensorFlow & ML specific
+data/
+models/
+logs/
+*.h5
+*.pb
+*.ckpt*
+*.index
+*.meta
+*.data*
+events.out.tfevents.*
+tensorboard/
+
+# Large files
+*.tar.gz
+*.zip
+*.csv
+*.tsv
+*.parquet
+
+# Additional ML specific
+*.tflite
+saved_model/
+**/wandb/
+mlruns/
+*.pth
+model_weights/
+*.keras
+.pytest_cache/
+.coverage
+coverage.xml
+.mypy_cache/
+.ruff_cache/
+
+# Keep specific directories but ignore contents
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+models/checkpoints/*
+!models/checkpoints/.gitkeep
+models/saved_models/*
+!models/saved_models/.gitkeep
+logs/tensorboard/*
+!logs/tensorboard/.gitkeep
+!notebooks/.gitkeep
