@@ -1,0 +1,34 @@
+services:
+  ml-dev:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    volumes:
+      # Mount source code and configuration files
+      - ../src:/app/src
+      - ../ci:/app/ci
+      - ../config:/app/config
+      # Mount data directories
+      - ml-data:/app/data
+      - ml-models:/app/models
+      - ml-logs:/app/logs
+      # Mount development files
+      - ../pyproject.toml:/app/pyproject.toml
+      - ../poetry.lock:/app/poetry.lock
+    ports:
+      - "8888:8888" # For Jupyter notebooks
+      - "6006:6006" # For TensorBoard
+    tty: true
+    stdin_open: true
+    networks:
+      - ml-network
+
+volumes:
+  ml-data:
+  ml-models:
+  ml-logs:
+
+
+networks:
+  ml-network:
+    driver: bridge

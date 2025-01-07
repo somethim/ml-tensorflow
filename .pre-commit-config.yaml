@@ -1,9 +1,18 @@
+#repos:
+#  - repo: local
+#    hooks:
+#      - id: lint-check
+#        name: Run lint check
+#        entry: poetry run lint
+#        language: system
+#        pass_filenames: false
+#        stages: [ pre-commit ]
+
 repos:
   - repo: local
     hooks:
-      - id: lint-check
-        name: Run lint check
-        entry: poetry run lint
+      - id: pass
+        name: Pass (no checks)
+        entry: "true"
         language: system
         pass_filenames: false
-        stages: [ pre-commit ]

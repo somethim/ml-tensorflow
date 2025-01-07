@@ -1,36 +1,47 @@
 """Main entry point for the ML project."""
 
+import sys
 from pathlib import Path
 
-from src.config import config
-from src.training.evaluate import evaluate_model
-from src.training.train import train_model
+from src.settings import config, get_logger
+from src.training import train_model
+
+logger = get_logger(__name__)
 
 
 def main() -> None:
     """Main entry point that trains and evaluates the model."""
-    cfg = config()
+    try:
+        logger.info("Loading configuration...")
+        cfg = config()
 
-    # Get paths from config
-    model_dir = Path(cfg.model.dir) / cfg.model.version
-    data_dir = Path(cfg.data.dir)
-    train_dir = data_dir / "train"
-    test_dir = data_dir / "test"
+        # Get paths from settings
+        model_dir = Path(cfg.model.dir) / cfg.model.version
+        data_dir = Path(cfg.data.dir)
+        train_dir = data_dir / "train"
 
-    # Train the model
-    print("Training model...")
-    train_model(
-        data_dir=train_dir,
-        model_dir=model_dir,
-    )
+        logger.info(f"Using model directory: {model_dir}")
+        logger.info(f"Using training data directory: {train_dir}")
 
-    # Evaluate the model
-    print("Evaluating model...")
-    metrics = evaluate_model(
-        model_path=model_dir / "model",
-        test_data_path=test_dir,
-    )
-    print(f"Evaluation metrics: {metrics}")
+        # Train and evaluate the model
+        logger.info("Starting model training and evaluation...")
+        results = train_model(
+            data_dir=train_dir,
+            model_dir=model_dir,
+        )
+
+        # Log results summary
+        logger.info(f"Model saved to: {results['model']['path']}")
+        logger.info("Training Results:")
+        logger.info(f"- Final loss: {results['training']['history']['loss'][-1]:.4f}")
+        logger.info(f"- Final accuracy: {results['training']['history']['accuracy'][-1]:.4f}")
+        logger.info("Evaluation Results:")
+        logger.info(f"- Test loss: {results['evaluation']['metrics']['loss']:.4f}")
+        logger.info(f"- Test accuracy: {results['evaluation']['metrics']['accuracy']:.4f}")
+
+    except Exception as e:
+        logger.error(f"Error occurred: {str(e)}")
+        sys.exit(1)
 
 
 if __name__ == "__main__":

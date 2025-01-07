@@ -52,7 +52,7 @@ class Config:
 
     def __init__(self) -> None:
         self._config = self._load_config()
-        # Override config values with environment variables
+        # Override settings values with environment variables
         self.model = ModelConfig(
             dir=os.getenv("ML_MODEL_DIR", self._config.get("model", {}).get("dir")),
             version=os.getenv("ML_MODEL_VERSION", self._config.get("model", {}).get("version")),
@@ -88,17 +88,17 @@ class Config:
         self.production = ProductionConfig(
             monitoring=os.getenv(
                 "ML_MONITORING", self._config.get("production", {}).get("monitoring", True)
-            ).lower()
+            )
             in ("true", "1", "yes"),
             version_control=os.getenv(
                 "ML_VERSION_CONTROL",
                 self._config.get("production", {}).get("version_control", True),
-            ).lower()
+            )
             in ("true", "1", "yes"),
             metrics_tracking=os.getenv(
                 "ML_METRICS_TRACKING",
                 self._config.get("production", {}).get("metrics_tracking", True),
-            ).lower()
+            )
             in ("true", "1", "yes"),
             monitoring_interval=int(
                 os.getenv(
@@ -121,7 +121,7 @@ class Config:
     @staticmethod
     def _load_config() -> Dict[str, Any]:
         """Load configuration from YAML file."""
-        config_path = Path("config/config.yml")
+        config_path = Path("settings/settings.yml")
         if not config_path.exists():
             raise FileNotFoundError(f"Config file not found: {config_path}")
 
@@ -129,7 +129,7 @@ class Config:
             return yaml.safe_load(f) or {}
 
     def get(self, key: str, default: Any = None) -> Any:
-        """Get config value using dot notation."""
+        """Get settings value using dot notation."""
         try:
             parts = key.split(".")
             value = self._config
@@ -142,5 +142,5 @@ class Config:
 
 @lru_cache()
 def config() -> Config:
-    """Get the global config instance."""
+    """Get the global settings instance."""
     return Config()

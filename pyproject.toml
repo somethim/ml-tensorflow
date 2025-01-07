@@ -7,7 +7,6 @@ license = "MIT"
 readme = "README.md"
 packages = [
     { include = "src" },
-    { include = "tests" },
     { include = "ci" }
 ]
 
@@ -18,7 +17,6 @@ scikit-learn = "^1.6.0"
 matplotlib = "^3.10.0"
 scipy = "^1.14.1"
 tensorflow-addons = "^0.23.0"
-tensorflow = "^2.18.0"
 tensorflow-hub = "^0.16.1"
 tensorflow-datasets = "^4.9.7"
 tensorboard = "^2.18.0"
@@ -28,6 +26,9 @@ pydantic = "^2.10.4"
 keras = "^3.7.0"
 seaborn = "^0.13.2"
 tensorflowjs = "^4.22.0"
+notebook = "^7.3.2"
+tensor-annotations-tensorflow-stubs = "^2.0.3"
+pyright = {extras = ["nodejs"], version = "^1.1.391"}
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.10.0"
@@ -46,38 +47,6 @@ types-pyyaml = "^6.0.12.20241230"
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
-[tool.black]
-line-length = 100
-target-version = ['py311']
-include = '\.pyi?$'
-
-[tool.isort]
-profile = "black"
-multi_line_output = 3
-include_trailing_comma = true
-force_grid_wrap = 0
-use_parentheses = true
-line_length = 100
-
-[tool.mypy]
-python_version = "3.11"
-warn_return_any = true
-warn_unused_configs = true
-disallow_untyped_defs = true
-disallow_incomplete_defs = true
-check_untyped_defs = true
-disallow_untyped_decorators = true
-no_implicit_optional = true
-warn_redundant_casts = true
-warn_unused_ignores = true
-warn_no_return = true
-warn_unreachable = true
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-addopts = "-ra -q --cov=src"
-
 [tool.poetry.scripts]
 ml = "src.main:main"
-lint = "ci.checks:run_lint"
+lint = "ci.lint:run_lint"

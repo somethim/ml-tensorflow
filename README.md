@@ -1,23 +1,25 @@
 # ML Model Development Template
 
-A production-ready template for developing machine learning models that can be deployed to web (Laravel/React) and mobile (React Native) applications. This template provides a standardized structure and workflow for training models and exporting them for various deployment targets.
+A production-ready template for developing machine learning models that can be deployed to web (Laravel/React) and
+mobile (React Native) applications. This template provides a standardized structure and workflow for training models and
+exporting them for various deployment targets.
 
 ## Features
 
 - **Structured Development Workflow**: From data exploration to production deployment
 - **Multiple Export Formats**:
-  - TensorFlow.js for React/React Native
-  - TensorFlow Lite for mobile
-  - TensorFlow Serving for REST APIs
+    - TensorFlow.js for React/React Native
+    - TensorFlow Lite for mobile
+    - TensorFlow Serving for REST APIs
 - **Development Tools**:
-  - Jupyter notebooks for experimentation
-  - Type checking and linting
-  - Automated testing
-  - Experiment tracking
+    - Jupyter notebooks for experimentation
+    - Type checking and linting
+    - Automated testing
+    - Experiment tracking
 - **Production Ready**:
-  - Model versioning
-  - Export utilities
-  - Performance optimization
+    - Model versioning
+    - Export utilities
+    - Performance optimization
 
 ## Project Structure
 
@@ -75,15 +77,18 @@ A production-ready template for developing machine learning models that can be d
 ## Development Workflow
 
 ### 1. Data Exploration and Model Development
+
 Use the provided Jupyter notebooks in `notebooks/`:
+
 - `1_data_exploration.ipynb`: Data analysis and preprocessing
 - `2_model_development.ipynb`: Model architecture and training
 - `3_model_export.ipynb`: Export models for production
 
 ### 2. Training
+
 ```bash
 # Train a model
-poetry run ml train --config config/default.py
+poetry run ml train --settings settings/default.py
 
 # Monitor training
 tensorboard --logdir logs/tensorboard
@@ -92,6 +97,7 @@ tensorboard --logdir logs/tensorboard
 ### 3. Export for Production
 
 #### React/React Native (TensorFlow.js)
+
 ```bash
 # Export model
 poetry run ml export --format tfjs --output models/exported/tfjs
@@ -104,6 +110,7 @@ const prediction = model.predict(tf.tensor(data));
 ```
 
 #### Mobile (TensorFlow Lite)
+
 ```bash
 # Export model
 poetry run ml export --format tflite --output models/exported/tflite
@@ -112,6 +119,7 @@ poetry run ml export --format tflite --output models/exported/tflite
 ```
 
 #### Laravel Backend (TensorFlow Serving)
+
 ```bash
 # Export model
 poetry run ml export --format serving --output models/exported/serving
@@ -142,19 +150,19 @@ poetry run clean
 ## Best Practices
 
 1. **Version Control**
-   - Use semantic versioning for models
-   - Tag releases when exporting to production
-   - Document model changes
+    - Use semantic versioning for models
+    - Tag releases when exporting to production
+    - Document model changes
 
 2. **Testing**
-   - Write unit tests for preprocessing
-   - Test model inputs/outputs
-   - Validate exported models
+    - Write unit tests for preprocessing
+    - Test model inputs/outputs
+    - Validate exported models
 
 3. **Deployment**
-   - Monitor model performance
-   - Version API endpoints
-   - Implement gradual rollout
+    - Monitor model performance
+    - Version API endpoints
+    - Implement gradual rollout
 
 ## Contributing
 

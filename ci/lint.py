@@ -2,16 +2,31 @@
 
 import subprocess
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List
 
 
-@dataclass
+@dataclass(frozen=True)
 class LintCommand:
-    """Lint command configuration."""
+    """Lint command configuration.
+
+    Attributes:
+        description: Human-readable description of the lint command
+        command: List of command arguments to execute
+    """
 
     description: str
-    command: List[str]
+    command: List[str] = field(default_factory=list)
+
+    def __init__(self, description: str, command: List[str]) -> None:
+        """Initialize a LintCommand.
+
+        Args:
+            description: Human-readable description of the lint command
+            command: List of command arguments to execute
+        """
+        object.__setattr__(self, "description", description)
+        object.__setattr__(self, "command", command)
 
 
 def run_command(command: List[str], description: str) -> bool:
@@ -32,23 +47,23 @@ def get_linters() -> List[LintCommand]:
     return [
         LintCommand(
             "Black formatter",
-            ["poetry", "run", "black", "."],
+            ["black", "--config", "ci/configs/black.toml", "."],
         ),
         LintCommand(
             "isort",
-            ["poetry", "run", "isort", "."],
+            ["isort", "--settings-path", "ci/configs/isort.toml", "."],
         ),
         LintCommand(
             "mypy type checking",
-            ["poetry", "run", "mypy", "."],
+            ["mypy", "--config-file", "ci/configs/mypy.ini", "."],
         ),
         LintCommand(
             "pyright type checking",
-            ["poetry", "run", "pyright", "."],
+            ["pyright", "--project", "ci/configs/pyright.toml", "."],
         ),
         LintCommand(
             "flake8 linting",
-            ["poetry", "run", "flake8", "--max-line-length=100"],
+            ["flake8", "--config", "ci/configs/.flake8"],
         ),
     ]
 
