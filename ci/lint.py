@@ -58,10 +58,6 @@ def get_linters() -> List[LintCommand]:
             ["mypy", "--config-file", "ci/configs/mypy.ini", "."],
         ),
         LintCommand(
-            "pyright type checking",
-            ["pyright", "--project", "ci/configs/pyright.toml", "."],
-        ),
-        LintCommand(
             "flake8 linting",
             ["flake8", "--config", "ci/configs/.flake8"],
         ),

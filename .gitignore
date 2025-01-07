@@ -4,84 +4,37 @@ __pycache__/
 *$py.class
 *.so
 .Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+poetry.lock
+
+# Virtual Environment
 .env
 .venv
 env/
 venv/
 ENV/
-dist/
-build/
-*.egg-info/
 
-# Jupyter Notebook
-.ipynb_checkpoints
-*.ipynb
-
-# PyCharm
+# IDE
 .idea/
-*.iml
-*.iws
-.idea_modules/
-
-# VS Code
 .vscode/
+*.swp
+*.swo
 
-# macOS
-.DS_Store
-
-# Project specific
-notebooks/*
-!notebooks/.gitkeep
-
-# TensorFlow & ML specific
-data/
-models/
-logs/
-*.h5
-*.pb
-*.ckpt*
-*.index
-*.meta
-*.data*
-events.out.tfevents.*
-tensorboard/
-
-# Large files
-*.tar.gz
-*.zip
-*.csv
-*.tsv
-*.parquet
-
-# Additional ML specific
-*.tflite
-saved_model/
-**/wandb/
-mlruns/
-*.pth
-model_weights/
-*.keras
-.pytest_cache/
+# Testing
 .coverage
-coverage.xml
-.mypy_cache/
-.ruff_cache/
-
-# Docker
-.docker/
-docker-compose.override.yml
-
-# Keep specific directories but ignore contents
-data/raw/*
-!data/raw/.gitkeep
-data/processed/*
-!data/processed/.gitkeep
-models/checkpoints/*
-!models/checkpoints/.gitkeep
-models/saved_models/*
-!models/saved_models/.gitkeep
-logs/tensorboard/*
-!logs/tensorboard/.gitkeep
-
-# Poetry
-poetry.lock
+.pytest_cache/
+htmlcov/

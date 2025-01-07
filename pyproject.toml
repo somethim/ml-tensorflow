@@ -28,7 +28,6 @@ seaborn = "^0.13.2"
 tensorflowjs = "^4.22.0"
 notebook = "^7.3.2"
 tensor-annotations-tensorflow-stubs = "^2.0.3"
-pyright = {extras = ["nodejs"], version = "^1.1.391"}
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.10.0"
@@ -36,7 +35,6 @@ flake8 = "^7.1.1"
 isort = "^5.13.2"
 mypy = "^1.14.1"
 pre-commit = "^4.0.1"
-pyright = "^1.1.391"
 coverage = "^7.6.10"
 pytest = "^8.3.4"
 pytest-cov = "^6.0.0"
