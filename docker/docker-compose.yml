@@ -14,7 +14,6 @@ services:
       - ml-logs:/app/logs
       # Mount development files
       - ../pyproject.toml:/app/pyproject.toml
-      - ../poetry.lock:/app/poetry.lock
     ports:
       - "8888:8888" # For Jupyter notebooks
       - "6006:6006" # For TensorBoard
