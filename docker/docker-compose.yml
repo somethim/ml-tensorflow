@@ -1,8 +1,12 @@
 services:
-  ml-dev:
+  ml-tensorflow:
+    container_name: ml-tensorflow-${BUILD_ENV:-dev}
+    image: ml-tensorflow:${BUILD_ENV:-dev}
     build:
       context: ..
-      dockerfile: docker/Dockerfile
+      target: ${BUILD_ENV:-dev}
+    tty: true
+    stdin_open: true
     volumes:
       # Mount source code and configuration files
       - ../src:/app/src
@@ -17,8 +21,6 @@ services:
     ports:
       - "8888:8888" # For Jupyter notebooks
       - "6006:6006" # For TensorBoard
-    tty: true
-    stdin_open: true
     networks:
       - ml-network
 

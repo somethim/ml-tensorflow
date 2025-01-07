@@ -1,0 +1,45 @@
+# Model Configuration
+# ===================
+
+#------------------------------------------------------------------------------
+# Model Storage
+#------------------------------------------------------------------------------
+# Configuration for model storage locations, versioning, and formats.
+# These settings determine where and how models are saved during training
+# and where they are loaded from during inference.
+
+storage:
+  base_dir: "models"
+  saved_models_dir: "saved_models"
+  checkpoints_dir: "checkpoints"
+  tensorboard_dir: "logs/tensorboard"
+  version: "v1"
+  format: "saved_model"
+
+#------------------------------------------------------------------------------
+# Model Performance Requirements
+#------------------------------------------------------------------------------
+# Minimum performance thresholds that models must meet to be considered
+# production-ready. These metrics are checked after training and during
+# model validation.
+
+performance:
+  min_accuracy: 0.90
+  max_inference_time: 100  # milliseconds
+  min_precision: 0.85
+  min_recall: 0.85
+  min_f1_score: 0.85
+
+#------------------------------------------------------------------------------
+# Model Versioning
+#------------------------------------------------------------------------------
+# Settings for model versioning and tracking. These control how models
+# are versioned, tagged, and tracked through their lifecycle from
+# development to production.
+
+versioning:
+  enable_git_tracking: true
+  save_training_code: true
+  save_config_snapshot: true
+  metadata_format: "json"
+  keep_last_n_versions: 5 

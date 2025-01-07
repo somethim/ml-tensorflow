@@ -1,6 +1,10 @@
-"""Configuration module for the application."""
+"""Settings package initialization."""
 
-from .config import config
-from .logging import get_logger
+from .config import config as _load_config
+from .tensorflow import configure_tensorflow
 
-__all__ = ["config", "get_logger"]
+# Load global configuration
+config = _load_config()
+
+# Configure TensorFlow
+configure_tensorflow()

@@ -1,11 +1,11 @@
+import logging
 from pathlib import Path
 from typing import Any, Dict, Optional
 
 import numpy as np
 import tensorflow as tf
-from src.settings import get_logger
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def evaluate_model(

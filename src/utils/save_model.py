@@ -21,11 +21,10 @@ class SaveModel:
         self.version_file = self.model_dir / "version.json"
 
         # Get required metrics and thresholds from settings
-        cfg = config()
         self.required_metrics: List[str] = (
-            cfg.model.required_metrics if hasattr(cfg.model, "required_metrics") else []
+            config.model.required_metrics if hasattr(config.model, "required_metrics") else []
         )
-        self.min_accuracy = cfg.model.min_accuracy
+        self.min_accuracy = config.model.min_accuracy
 
     def save(self, metrics: Dict[str, Dict[str, Any]]) -> Path:
         """Save model version info with metrics.
@@ -88,8 +87,7 @@ class SaveModel:
             return False
 
         # Check inference time if specified
-        cfg = config()
-        max_inference_time = cfg.model.max_inference_time
+        max_inference_time = config.model.max_inference_time
         if "inference_time" in metrics and metrics["inference_time"] > max_inference_time:
             return False
 

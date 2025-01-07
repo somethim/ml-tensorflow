@@ -1,81 +1,51 @@
-"""Model training functionality."""
-
-from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Tuple
 
 import tensorflow as tf
-from src.settings import config, get_logger
-from src.utils import SaveModel
-
-from .evaluate import evaluate_model
-
-logger = get_logger(__name__)
+from settings.tensorflow import TensorFlowSettings
+from tensorflow.keras import Sequential
+from tensorflow.keras.layers import Dense, Flatten, Input
 
 
-def train_model(
-    data_dir: Path,
-    model_dir: Path,
-    epochs: Optional[int] = None,
-    batch_size: Optional[int] = None,
-) -> Dict[str, Any]:
-    """
-    Train a model on the provided data, evaluate it, and save results.
+def load_mnist_data() -> Tuple[Tuple[tf.Tensor, tf.Tensor], Tuple[tf.Tensor, tf.Tensor]]:
+    (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
+    x_train, x_test = x_train / 255.0, x_test / 255.0
+    return (x_train, y_train), (x_test, y_test)
 
-    Args:
-        data_dir: Directory containing training data
-        model_dir: Directory to save trained model
-        epochs: Number of training epochs (overrides settings)
-        batch_size: Training batch size (overrides settings)
 
-    Returns:
-        dict: Dictionary containing training history, evaluation metrics, and model info
-    """
-    cfg = config()
-    epochs = epochs or cfg.training.epochs
-    batch_size = batch_size or cfg.training.batch_size
-
-    logger.info(f"Training on {data_dir}")
-    logger.info(f"Using batch size: {batch_size}, epochs: {epochs}")
-
-    logger.info("Loading MNIST dataset...")
-    mnist = tf.keras.datasets.mnist
-    (x_train, y_train), _ = mnist.load_data()
-    x_train = x_train / 255.0
-    logger.info(f"Loaded {len(x_train)} training samples")
-
-    logger.info("Building model...")
-    model = tf.keras.models.Sequential(
+def create_model() -> Sequential:
+    model = Sequential(
         [
-            tf.keras.layers.Flatten(input_shape=(28, 28)),
-            tf.keras.layers.Dense(128, activation="relu"),
-            tf.keras.layers.Dropout(0.2),
-            tf.keras.layers.Dense(10),
+            Input(shape=(28, 28)),
+            Flatten(),
+            Dense(128, activation="relu"),
+            Dense(10, activation="softmax"),
         ]
     )
 
-    loss_fn = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
-    model.compile(optimizer="adam", loss=loss_fn, metrics=["accuracy"])
+    model.compile(optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
+    return model
 
-    logger.info("Starting training...")
-    history = model.fit(x_train, y_train, epochs=epochs, batch_size=batch_size)
 
-    # Get test data path if it exists
-    test_data_path = data_dir / "test.npz" if data_dir.exists() else None
-    evaluation_results = evaluate_model(model, test_data_path)
+def train_model(settings: TensorFlowSettings = TensorFlowSettings()) -> Dict[str, Any]:
+    try:
+        (x_train, y_train), _ = load_mnist_data()
+        model = create_model()
 
-    results = {
-        "training": {
-            "history": history.history,
-            "epochs": epochs,
-            "batch_size": batch_size,
-            "samples": len(x_train),
-        },
-        "evaluation": evaluation_results,
-    }
+        history = model.fit(
+            x_train,
+            y_train,
+            epochs=settings.epochs,
+            batch_size=settings.batch_size,
+            validation_split=settings.validation_split,
+            verbose=settings.verbose,
+        )
 
-    logger.info(f"Saving model to {model_dir}")
-    save_path = SaveModel(model_dir).save(results)
+        return {"history": history.history, "model": model}
+    except Exception as e:
+        raise RuntimeError(f"Training failed: {str(e)}")
 
-    results["model"] = {"path": str(save_path), "version": cfg.model.version}
 
-    return results
+if __name__ == "__main__":
+    result = train_model()
+    print(f"Final accuracy: {result['history']['accuracy'][-1]:.4f}")
+    print(f"Final loss: {result['history']['loss'][-1]:.4f}")
