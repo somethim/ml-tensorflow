@@ -22,7 +22,9 @@ class SaveModel:
 
         # Get required metrics and thresholds from settings
         self.required_metrics: List[str] = (
-            config.model.required_metrics if hasattr(config.model, "required_metrics") else []
+            config.model.required_metrics
+            if hasattr(config.model, "required_metrics")
+            else []
         )
         self.min_accuracy = config.model.min_accuracy
 
@@ -88,8 +90,14 @@ class SaveModel:
 
         # Check inference time if specified
         max_inference_time = config.model.max_inference_time
-        if "inference_time" in metrics and metrics["inference_time"] > max_inference_time:
+        if (
+            "inference_time" in metrics
+            and metrics["inference_time"] > max_inference_time
+        ):
             return False
 
         # Verify all required metrics are above minimum accuracy
-        return all(metrics.get(metric, 0) >= self.min_accuracy for metric in self.required_metrics)
+        return all(
+            metrics.get(metric, 0) >= self.min_accuracy
+            for metric in self.required_metrics
+        )

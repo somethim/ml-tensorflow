@@ -9,7 +9,7 @@ NC='\033[0m' # No Color
 # Get the directory where the script is located
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 DOCKER_DIR="${SCRIPT_DIR}/docker"
-DOCKER_COMPOSE_FILE="${DOCKER_DIR}/docker-compose.yml"
+export DOCKER_COMPOSE_FILE="${DOCKER_DIR}/docker-compose.yml"
 
 # Default environment
 export BUILD_ENV=${BUILD_ENV:-dev}
@@ -22,32 +22,60 @@ cd "${SCRIPT_DIR}" || {
 
 show_help() {
     echo -e "\n${BLUE}ML Development Environment Commands:${NC}"
-    echo -e "\nUsage: $0 {help|start|up|down|clean} [env]"
+    echo -e "\nUsage: $0 {help|start|up|down|clean|fresh} [env]"
     echo -e "\nAvailable commands:"
-    echo -e "  ${GREEN}help${NC}   Show this help message"
-    echo -e "  ${GREEN}start${NC}  Build containers, start environment, and enter shell"
-    echo -e "  ${GREEN}up${NC}     Start environment and enter shell (no rebuild)"
-    echo -e "  ${GREEN}down${NC}   Stop development environment"
-    echo -e "  ${GREEN}clean${NC}  Stop and remove containers, images, and volumes"
+    echo -e "  ${GREEN}help${NC}    Show this help message"
+    echo -e "  ${GREEN}start${NC}   Build containers, start environment, and enter shell"
+    echo -e "  ${GREEN}up${NC}      Start environment and enter shell (no rebuild)"
+    echo -e "  ${GREEN}down${NC}    Stop development environment"
+    echo -e "  ${GREEN}clean${NC}   Stop and remove containers, images, and volumes"
+    echo -e "  ${GREEN}fresh${NC}   Clean and start fresh environment"
     echo -e "\nEnvironment options:"
-    echo -e "  ${GREEN}dev${NC}    Development environment (default)"
-    echo -e "  ${GREEN}prod${NC}   Production environment"
+    echo -e "  ${GREEN}dev${NC}     Development environment (default)"
+    echo -e "  ${GREEN}prod${NC}    Production environment"
     echo
 }
 
 start_environment() {
     local should_build=$1
+    local container_name="ml-tensorflow-${BUILD_ENV}"
+    local service_name="ml-tensorflow-${BUILD_ENV}"
     
     if [ "$should_build" = true ]; then
         echo -e "${BLUE}Building Docker containers (${BUILD_ENV} environment)...${NC}"
-        cd "${DOCKER_DIR}" && docker compose build
+        cd "${DOCKER_DIR}" && docker compose --profile "${BUILD_ENV}" build
     fi
     
     echo -e "${BLUE}Starting environment (${BUILD_ENV})...${NC}"
-    cd "${DOCKER_DIR}" && docker compose up -d
+    cd "${DOCKER_DIR}" && docker compose --profile "${BUILD_ENV}" up -d
     
     echo -e "${BLUE}Entering container...${NC}"
-    docker compose -f "${DOCKER_COMPOSE_FILE}" exec ml-tensorflow bash
+    docker exec -it "${container_name}" bash || {
+        echo -e "${RED}Failed to enter container${NC}"
+        exit 1
+    }
+}
+
+stop_environment() {
+    echo -e "${BLUE}Stopping environment...${NC}"
+    cd "${DOCKER_DIR}" && docker compose --profile "${BUILD_ENV}" down
+}
+
+clean_environment() {
+    echo -e "${BLUE}Cleaning up environment...${NC}"
+    
+    # Check if there are any containers from our compose file
+    if [ -n "$(cd "${DOCKER_DIR}" && docker compose --profile "${BUILD_ENV}" ps -q)" ]; then
+        cd "${DOCKER_DIR}" && docker compose --profile "${BUILD_ENV}" down --rmi all --volumes --remove-orphans
+    else
+        echo -e "${BLUE}Nothing to clean up${NC}"
+    fi
+}
+
+start_fresh() {
+    echo -e "${BLUE}Starting fresh environment...${NC}"
+    clean_environment
+    start_environment true
 }
 
 # Check for environment argument
@@ -72,12 +100,13 @@ case "$1" in
         start_environment false
         ;;
     "down")
-        echo -e "${BLUE}Stopping environment...${NC}"
-        docker compose -f "${DOCKER_COMPOSE_FILE}" down
+        stop_environment
         ;;
     "clean")
-        echo -e "${BLUE}Cleaning up environment...${NC}"
-        docker compose -f "${DOCKER_COMPOSE_FILE}" down --rmi all --volumes --remove-orphans
+        clean_environment
+        ;;
+    "fresh")
+        start_fresh
         ;;
     *)
         echo -e "${RED}Invalid command: $1${NC}"

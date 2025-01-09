@@ -1,7 +1,7 @@
 """Settings package initialization."""
 
-from .config import config as _load_config
-from .tensorflow import configure_tensorflow
+from src.settings.config import config as _load_config
+from src.settings.tensorflow import configure_tensorflow
 
 # Load global configuration
 config = _load_config()

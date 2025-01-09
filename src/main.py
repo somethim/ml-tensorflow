@@ -36,7 +36,9 @@ def main() -> None:
         logger.info(f"Model saved to: {results['model']['path']}")
         logger.info("Training Results:")
         logger.info(f"- Final loss: {results['training']['history']['loss'][-1]:.4f}")
-        logger.info(f"- Final accuracy: {results['training']['history']['accuracy'][-1]:.4f}")
+        logger.info(
+            f"- Final accuracy: {results['training']['history']['accuracy'][-1]:.4f}"
+        )
         logger.info("Evaluation Results:")
         logger.info(f"- Test loss: {results['evaluation']['loss']:.4f}")
         logger.info(f"- Test accuracy: {results['evaluation']['accuracy']:.4f}")

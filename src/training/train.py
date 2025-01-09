@@ -1,18 +1,38 @@
-from typing import Any, Dict, Tuple
+import logging
+from pathlib import Path
+from typing import Any, Dict, Optional, Tuple
 
+import numpy as np
 import tensorflow as tf
-from settings.tensorflow import TensorFlowSettings
 from tensorflow.keras import Sequential
 from tensorflow.keras.layers import Dense, Flatten, Input
 
+from src.settings import config
+from src.training.evaluate import evaluate_model
+from src.utils.save_model import SaveModel
 
-def load_mnist_data() -> Tuple[Tuple[tf.Tensor, tf.Tensor], Tuple[tf.Tensor, tf.Tensor]]:
-    (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
-    x_train, x_test = x_train / 255.0, x_test / 255.0
-    return (x_train, y_train), (x_test, y_test)
+logger = logging.getLogger(__name__)
 
 
-def create_model() -> Sequential:
+def __load_data(data_path: Path) -> Tuple[tf.Tensor, tf.Tensor]:
+    """
+    Load training data from the specified path.
+
+    Args:
+        data_path: Path to the training data file (.npz format)
+
+    Returns:
+        Tuple of (features, labels) tensors
+    """
+    logger.info(f"Loading training data from {data_path}")
+    data = np.load(data_path)
+    x_train = data["features"] / 255.0  # Normalize pixel values
+    y_train = data["labels"]
+    logger.info(f"Loaded {x_train.shape[0]} training samples")
+    return x_train, y_train
+
+
+def __create_model() -> Sequential:
     model = Sequential(
         [
             Input(shape=(28, 28)),
@@ -22,30 +42,82 @@ def create_model() -> Sequential:
         ]
     )
 
-    model.compile(optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
+    model.compile(
+        optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"]
+    )
     return model
 
 
-def train_model(settings: TensorFlowSettings = TensorFlowSettings()) -> Dict[str, Any]:
-    try:
-        (x_train, y_train), _ = load_mnist_data()
-        model = create_model()
+def train_model(
+    data_dir: Path,
+    model_dir: Path,
+    epochs: Optional[int] = None,
+    batch_size: Optional[int] = None,
+) -> Dict[str, Any]:
+    """
+    Train a model on the provided data, evaluate it, and save results.
 
+    Args:
+        data_dir: Directory containing training data
+        model_dir: Directory to save trained model
+        epochs: Number of training epochs (overrides settings)
+        batch_size: Training batch size (overrides settings)
+
+    Returns:
+        dict: Dictionary containing training history, evaluation metrics, and model info
+
+    Throws:
+        RuntimeError: If training fails
+    """
+    try:
+        # Load data and create model
+        x_train, y_train = (
+            __load_data(data_dir)
+            if data_dir
+            else tf.keras.datasets.mnist.load_data()[0]
+        )
+        model = __create_model()
+
+        # Train the model
+        logger.info("Starting model training...")
         history = model.fit(
             x_train,
             y_train,
-            epochs=settings.epochs,
-            batch_size=settings.batch_size,
-            validation_split=settings.validation_split,
-            verbose=settings.verbose,
+            epochs=config.training.epochs if epochs is None else epochs,
+            batch_size=config.training.batch_size if batch_size is None else batch_size,
+            validation_split=config.training.validation_split,
+            verbose=1,
         )
 
-        return {"history": history.history, "model": model}
+        # Evaluate the model
+        logger.info("Evaluating model...")
+        eval_results = evaluate_model(model)
+
+        # Save the model
+        logger.info("Saving model...")
+        saver = SaveModel(model_dir)
+        save_path = saver.save(
+            {
+                "training": {
+                    "history": history.history,
+                    "parameters": {
+                        "epochs": epochs or config.training.epochs,
+                        "batch_size": batch_size or config.training.batch_size,
+                        "validation_split": config.training.validation_split,
+                    },
+                },
+                "evaluation": eval_results,
+            }
+        )
+
+        return {
+            "model": {"path": str(save_path), "version": saver.get_latest_version()},
+            "training": {"history": history.history},
+            "evaluation": {
+                "loss": eval_results["metrics"]["loss"],
+                "accuracy": eval_results["metrics"]["accuracy"],
+            },
+        }
+
     except Exception as e:
         raise RuntimeError(f"Training failed: {str(e)}")
-
-
-if __name__ == "__main__":
-    result = train_model()
-    print(f"Final accuracy: {result['history']['accuracy'][-1]:.4f}")
-    print(f"Final loss: {result['history']['loss'][-1]:.4f}")

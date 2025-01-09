@@ -4,10 +4,11 @@ version = "0.1.0"
 description = "A structured learning path for Machine Learning"
 authors = ["Arbi Kullakshi <arbikullakshi0@gmail.com>"]
 license = "MIT"
+package-mode = true
 readme = "README.md"
 packages = [
     { include = "src" },
-    { include = "ci" }
+    { include = "tools" }
 ]
 
 [tool.poetry.dependencies]
@@ -16,6 +17,7 @@ pandas = "^2.2.3"
 scikit-learn = "^1.6.0"
 matplotlib = "^3.10.0"
 scipy = "^1.14.1"
+tensorflow = "^2.15.0"
 tensorflow-addons = "^0.23.0"
 tensorflow-hub = "^0.16.1"
 tensorflow-datasets = "^4.9.7"
@@ -23,7 +25,6 @@ tensorboard = "^2.18.0"
 typing-extensions = "^4.12.2"
 python-dotenv = "^1.0.1"
 pydantic = "^2.10.4"
-keras = "^3.7.0"
 seaborn = "^0.13.2"
 tensorflowjs = "^4.22.0"
 notebook = "^7.3.2"
@@ -41,6 +42,7 @@ pytest = "^8.3.4"
 pytest-cov = "^6.0.0"
 jupyter-black = "^0.4.0"
 types-pyyaml = "^6.0.12.20241230"
+pydantic = { extras = ["mypy"], version = "^2.10.4" }
 
 [build-system]
 requires = ["poetry-core"]
@@ -48,4 +50,17 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
 ml = "src.main:main"
-lint = "ci.lint:run_lint"
+lint = "tools.lint:run_lint"
+
+[tool.black]
+config-file = "tools/configs/black.toml"
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+line_length = 100
+src_paths = ["src", "tools", "tests"]
+skip = [".venv"]

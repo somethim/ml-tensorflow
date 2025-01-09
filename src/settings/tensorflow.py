@@ -2,15 +2,15 @@
 
 import logging
 import os
-from dataclasses import dataclass
 
 import tensorflow as tf
-from src.settings import config
+
+from src.settings.config import TensorFlowConfig, config
 
 logger = logging.getLogger(__name__)
 
 
-def _configure_gpu(cfg: config.TensorFlowConfig) -> None:
+def _configure_gpu(cfg: TensorFlowConfig) -> None:
     """Configure GPU settings based on configuration."""
     gpus = tf.config.list_physical_devices("GPU")
 
@@ -33,7 +33,12 @@ def _configure_gpu(cfg: config.TensorFlowConfig) -> None:
         if cfg.gpu_memory_limit > 0:
             for gpu in gpus:
                 tf.config.set_logical_device_configuration(
-                    gpu, [tf.config.LogicalDeviceConfiguration(memory_limit=cfg.gpu_memory_limit)]
+                    gpu,
+                    [
+                        tf.config.LogicalDeviceConfiguration(
+                            memory_limit=cfg.gpu_memory_limit
+                        )
+                    ],
                 )
 
         logger.info(f"GPU configuration complete. Using {len(gpus)} GPU(s)")
@@ -41,7 +46,7 @@ def _configure_gpu(cfg: config.TensorFlowConfig) -> None:
         logger.warning(f"GPU configuration error: {e}")
 
 
-def _configure_cpu(cfg: config.TensorFlowConfig) -> None:
+def _configure_cpu(cfg: TensorFlowConfig) -> None:
     """Configure CPU settings based on configuration."""
     if cfg.parallel_threads > 0:
         tf.config.threading.set_inter_op_parallelism_threads(cfg.parallel_threads)
@@ -53,7 +58,7 @@ def _configure_cpu(cfg: config.TensorFlowConfig) -> None:
     logger.info("CPU configuration complete")
 
 
-def _configure_logging(cfg: config.TensorFlowConfig) -> None:
+def _configure_logging(cfg: TensorFlowConfig) -> None:
     """Configure TensorFlow logging based on configuration."""
     # Base logging level
     log_level = "0" if cfg.debug_mode else "2"
@@ -79,7 +84,7 @@ def _configure_logging(cfg: config.TensorFlowConfig) -> None:
 
 def configure_tensorflow() -> None:
     """Configure TensorFlow environment based on settings."""
-    cfg = config.config().tensorflow
+    cfg = config().tensorflow
 
     # Configure logging first
     _configure_logging(cfg)
@@ -133,11 +138,3 @@ def configure_tensorflow() -> None:
     tf.debugging.set_log_device_placement(cfg.log_device_placement)
 
     logger.info("TensorFlow configuration complete")
-
-
-@dataclass
-class TensorFlowSettings:
-    epochs: int = 10
-    batch_size: int = 32
-    validation_split: float = 0.2
-    verbose: int = 1

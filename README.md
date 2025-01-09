@@ -25,7 +25,7 @@ exporting them for various deployment targets.
 
 ```
 .
-├── ci/               # Continuous Integration configs
+├── tools/               # Continuous Integration configs
 ├── config/           # Configuration files
 ├── data/
 │   ├── processed/    # Preprocessed data

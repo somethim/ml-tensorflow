@@ -3,13 +3,13 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 
 import numpy as np
-import tensorflow as tf
+from tensorflow.keras import keras
 
 logger = logging.getLogger(__name__)
 
 
 def evaluate_model(
-    model: tf.keras.Model,
+    model: keras.Model,
     test_data_path: Optional[Path] = None,
 ) -> Dict[str, Any]:
     """Evaluate a trained model.
@@ -31,11 +31,11 @@ def evaluate_model(
         except Exception as e:
             logger.error(f"Failed to load test data from {test_data_path}: {str(e)}")
             logger.warning("Falling back to default MNIST test data")
-            _, (x_test, y_test) = tf.keras.datasets.mnist.load_data()
+            _, (x_test, y_test) = keras.datasets.mnist.load_data()
             x_test = x_test / 255.0
     else:
         logger.info("Loading default MNIST test dataset...")
-        _, (x_test, y_test) = tf.keras.datasets.mnist.load_data()
+        _, (x_test, y_test) = keras.datasets.mnist.load_data()
         x_test = x_test / 255.0
 
     logger.info(f"Evaluating model on {len(x_test)} test samples...")

@@ -5,30 +5,14 @@ services:
     build:
       context: ..
       target: ${BUILD_ENV:-dev}
-    tty: true
-    stdin_open: true
+      dockerfile: docker/Dockerfile
     volumes:
-      # Mount source code and configuration files
-      - ../src:/app/src
-      - ../ci:/app/ci
-      - ../config:/app/config
-      # Mount data directories
-      - ml-data:/app/data
-      - ml-models:/app/models
-      - ml-logs:/app/logs
-      # Mount development files
-      - ../pyproject.toml:/app/pyproject.toml
+      - ..:/app
     ports:
       - "8888:8888" # For Jupyter notebooks
       - "6006:6006" # For TensorBoard
     networks:
       - ml-network
-
-volumes:
-  ml-data:
-  ml-models:
-  ml-logs:
-
 
 networks:
   ml-network:

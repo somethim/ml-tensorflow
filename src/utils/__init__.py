@@ -1,5 +1,5 @@
 """Utility functions and helpers."""
 
-from .save_model import SaveModel
+from src.utils.save_model import SaveModel
 
 __all__ = ["SaveModel"]

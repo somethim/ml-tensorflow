@@ -47,19 +47,19 @@ def get_linters() -> List[LintCommand]:
     return [
         LintCommand(
             "Black formatter",
-            ["black", "--config", "ci/configs/black.toml", "."],
+            ["black", "."],
         ),
         LintCommand(
             "isort",
-            ["isort", "--settings-path", "ci/configs/isort.toml", "."],
+            ["isort", "."],
         ),
         LintCommand(
             "mypy type checking",
-            ["mypy", "--config-file", "ci/configs/mypy.ini", "."],
+            ["mypy", "--config-file", "tools/configs/mypy.ini", "."],
         ),
         LintCommand(
             "flake8 linting",
-            ["flake8", "--config", "ci/configs/.flake8"],
+            ["flake8", "--config", "tools/configs/.flake8"],
         ),
     ]
 
