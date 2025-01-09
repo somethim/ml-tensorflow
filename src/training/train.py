@@ -42,9 +42,7 @@ def __create_model() -> Sequential:
         ]
     )
 
-    model.compile(
-        optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"]
-    )
+    model.compile(optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
     return model
 
 
@@ -72,9 +70,7 @@ def train_model(
     try:
         # Load data and create model
         x_train, y_train = (
-            __load_data(data_dir)
-            if data_dir
-            else tf.keras.datasets.mnist.load_data()[0]
+            __load_data(data_dir) if data_dir else tf.keras.datasets.mnist.load_data()[0]
         )
         model = __create_model()
 

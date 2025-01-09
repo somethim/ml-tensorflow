@@ -34,11 +34,7 @@ def _configure_gpu(cfg: TensorFlowConfig) -> None:
             for gpu in gpus:
                 tf.config.set_logical_device_configuration(
                     gpu,
-                    [
-                        tf.config.LogicalDeviceConfiguration(
-                            memory_limit=cfg.gpu_memory_limit
-                        )
-                    ],
+                    [tf.config.LogicalDeviceConfiguration(memory_limit=cfg.gpu_memory_limit)],
                 )
 
         logger.info(f"GPU configuration complete. Using {len(gpus)} GPU(s)")
