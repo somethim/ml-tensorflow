@@ -1,11 +1,12 @@
 import logging
 from pathlib import Path
-from typing import Any, Dict, Optional, Tuple
+from typing import Optional, Tuple
 
+import keras
 import numpy as np
 import tensorflow as tf
-from tensorflow.keras import Sequential
-from tensorflow.keras.layers import Dense, Flatten, Input
+from keras import Input, Sequential
+from keras.src.layers import Dense, Flatten
 
 from src.settings import config
 from src.training.evaluate import evaluate_model
@@ -42,22 +43,26 @@ def __create_model() -> Sequential:
         ]
     )
 
-    model.compile(optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
+    model.compile(
+        optimizer="adam",
+        loss="sparse_categorical_crossentropy",
+        metrics=[keras.metrics.SparseCategoricalAccuracy()],
+    )
     return model
 
 
 def train_model(
-    data_dir: Path,
-    model_dir: Path,
+    data_dir: Optional[Path],
+    save_path: Optional[Path] = None,
     epochs: Optional[int] = None,
     batch_size: Optional[int] = None,
-) -> Dict[str, Any]:
+) -> Path:
     """
     Train a model on the provided data, evaluate it, and save results.
 
     Args:
         data_dir: Directory containing training data
-        model_dir: Directory to save trained model
+        save_path: Path to save the trained model
         epochs: Number of training epochs (overrides settings)
         batch_size: Training batch size (overrides settings)
 
@@ -69,9 +74,14 @@ def train_model(
     """
     try:
         # Load data and create model
-        x_train, y_train = (
-            __load_data(data_dir) if data_dir else tf.keras.datasets.mnist.load_data()[0]
-        )
+        if data_dir and data_dir.exists():
+            logger.info(f"Loading data from {data_dir}")
+            x_train, y_train = __load_data(data_dir)
+        else:
+            logger.info("Using MNIST dataset as fallback")
+            (x_train, y_train), _ = keras.datasets.mnist.load_data()
+            x_train = tf.cast(x_train, tf.float32) / 255.0  # Convert to float and normalize
+
         model = __create_model()
 
         # Train the model
@@ -91,9 +101,10 @@ def train_model(
 
         # Save the model
         logger.info("Saving model...")
-        saver = SaveModel(model_dir)
+        saver = SaveModel(save_path)
         save_path = saver.save(
-            {
+            model=model,
+            metrics={
                 "training": {
                     "history": history.history,
                     "parameters": {
@@ -103,17 +114,10 @@ def train_model(
                     },
                 },
                 "evaluation": eval_results,
-            }
+            },
         )
 
-        return {
-            "model": {"path": str(save_path), "version": saver.get_latest_version()},
-            "training": {"history": history.history},
-            "evaluation": {
-                "loss": eval_results["metrics"]["loss"],
-                "accuracy": eval_results["metrics"]["accuracy"],
-            },
-        }
+        return save_path
 
     except Exception as e:
         raise RuntimeError(f"Training failed: {str(e)}")

@@ -1,4 +1,5 @@
-"""ML Course Project.
+"""
+ML Project.
 
 A structured TensorFlow-based machine learning project with best practices
 for training, evaluation, and model deployment.

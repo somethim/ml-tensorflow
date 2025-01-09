@@ -30,6 +30,7 @@ tensorflowjs = "^4.22.0"
 notebook = "^7.3.2"
 tensor-annotations-tensorflow-stubs = "^2.0.3"
 pyyaml = "^6.0.2"
+keras = "^3.8.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.10.0"

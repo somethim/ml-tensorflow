@@ -1,65 +1,6 @@
 # Environment Configuration
 # =======================
 
-#------------------------------------------------------------------------------
-# TensorFlow Settings
-#------------------------------------------------------------------------------
-# Core TensorFlow configuration including device selection, memory
-# allocation, and optimization settings. These affect how TensorFlow
-# utilizes system resources during training and inference.
-
-tensorflow:
-  # Device Configuration
-  compute_mode: "cpu"  # Options: "auto", "cpu", "gpu", "multi_gpu"
-  gpu_devices: []  # Empty list means all GPUs, or specify indices [0,1,etc]
-  gpu_memory_limit: 0  # 0 means no limit, otherwise in MB
-  gpu_memory_growth: false  # Allocate GPU memory as needed
-  gpu_allow_growth: true  # Allow GPU memory to grow dynamically
-
-  # Performance Optimization
-  mixed_precision: false  # Enable mixed precision training
-  xla_acceleration: false  # Enable XLA optimization
-  parallel_threads: 0  # 0 means auto-select based on CPU cores
-  inter_op_parallelism: 0  # 0 means auto-select
-  intra_op_parallelism: 0  # 0 means auto-select
-  tensor_float_32: true  # Use TF32 on Ampere GPUs
-
-  # Memory Management
-  memory_growth: true  # Prevent TensorFlow from allocating all GPU memory
-  memory_preallocation: false  # Preallocate GPU memory
-  memory_allocation_fraction: 1.0  # Fraction of GPU memory to allocate
-  cpu_memory_limit: 0  # 0 means no limit, otherwise in MB
-
-  # Logging and Debug
-  log_device_placement: false  # Log which devices operations are assigned to
-  log_level: "INFO"  # Options: DEBUG, INFO, WARNING, ERROR
-  enable_op_determinism: false  # Make operations deterministic (may impact performance)
-  debug_mode: false  # Enable debug mode for more verbose logging
-
-  # Optimization Flags
-  enable_onednn_opts: true  # Enable oneDNN optimizations
-  enable_mkl: true  # Enable Intel MKL optimizations
-  enable_cuda_conv_algorithms: true  # Enable CUDA convolution algorithms
-  cudnn_conv_algo: "fastest"  # Options: fastest, deterministic, default
-
-  # Distribution Strategy
-  distribution_strategy: "auto"  # Options: auto, mirrored, multi_worker, parameter_server
-  num_workers: 1  # Number of workers for distributed training
-  communication_options: "NCCL"  # Options: NCCL, RING, AUTO
-
-  # Warning Controls
-  suppress_warnings:
-    onednn: false  # Suppress oneDNN optimization warnings
-    cuda_missing: true  # Suppress CUDA not found warnings
-    cpu_instructions: false  # Suppress CPU optimization warnings
-    registration_conflicts: true  # Suppress plugin registration conflict warnings
-  
-  # Logging Controls
-  logging:
-    file_output: true  # Enable logging to file
-    console_output: true  # Enable console logging
-    log_format: "detailed"  # Options: basic, detailed
-    include_timestamps: true
 
 #------------------------------------------------------------------------------
 # Data Management
@@ -69,7 +10,7 @@ tensorflow:
 # training or inference.
 
 data:
-  base_dir: "data"
+  base_dir: "None"
   raw_dir: "raw"
   processed_dir: "processed"
   cache_dir: ".cache"

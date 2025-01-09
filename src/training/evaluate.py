@@ -2,8 +2,8 @@ import logging
 from pathlib import Path
 from typing import Any, Dict, Optional
 
+import keras
 import numpy as np
-from tensorflow.keras import keras
 
 logger = logging.getLogger(__name__)
 
@@ -40,8 +40,8 @@ def evaluate_model(
 
     logger.info(f"Evaluating model on {len(x_test)} test samples...")
     eval_results = model.evaluate(x_test, y_test, verbose=0)
+    logger.info("Evaluation complete")
 
     metrics = dict(zip(model.metrics_names, eval_results))
-    logger.info("Evaluation complete")
 
     return {"metrics": metrics, "test_samples": len(x_test)}
