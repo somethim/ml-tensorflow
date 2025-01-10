@@ -59,8 +59,12 @@ class DataConfig(BaseModel):
 class MonitoringConfig(BaseModel):
     """Monitoring and logging configuration."""
 
+    logger_name: str = Field(default="ml-tensorflow", description="Name of the application logger")
     log_level: str = Field(default="INFO", description="Logging level")
     enable_file_logging: bool = Field(default=True, description="Enable file logging")
+    store_verbose_logs: bool = Field(
+        default=False, description="Store non-error/warning logs in file"
+    )
     log_dir: str = Field(default="logs", description="Log directory")
     monitoring_interval: int = Field(default=60, description="Monitoring interval in seconds")
     alert_threshold: float = Field(default=0.85, description="Alert threshold")
@@ -98,7 +102,7 @@ class Config:
         self.model = ModelConfig(**self._get_config_with_env("model", "storage"))
         self.training = TrainingConfig(**self._get_config_with_env("training", "training"))
         self.data = DataConfig(**self._get_config_with_env("data", "data"))
-        self.monitoring = MonitoringConfig(**self._get_config_with_env("monitoring", "monitoring"))
+        self.monitoring = MonitoringConfig(**self._get_config_with_env("environment", "monitoring"))
 
     def _get_config_with_env(self, config_file: str, section: str) -> dict[str, Any]:
         """Get configuration with environment variable overrides."""

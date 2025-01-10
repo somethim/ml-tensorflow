@@ -1,17 +1,11 @@
 """Main entry point for the ML project."""
 
-import logging
 import sys
 from pathlib import Path
 
-from src.settings import config
-from src.settings.logger import setup_logging
+from src.settings import config, logger
 from src.training import train_model
 from tools.lint import run_lint
-
-# Ensure logging is set up first
-setup_logging()
-logger = logging.getLogger(__name__)
 
 
 def main() -> None:

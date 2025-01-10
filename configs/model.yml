@@ -9,12 +9,12 @@
 # and where they are loaded from during inference.
 
 storage:
-  base_dir: "models"
-  saved_models_dir: "models/saved_models"
-  checkpoints_dir: "models/checkpoints"
-  tensorboard_dir: "logs/tensorboard"
-  version: "v1"
-  format: "saved_model"
+  base_dir: "models"  # Base directory for model storage
+  saved_models_dir: "models/saved_models" # Directory for saved models
+  checkpoints_dir: "models/checkpoints" # Directory for model checkpoints
+  tensorboard_dir: "logs/tensorboard" # Directory for TensorBoard logs
+  version: "v1" # Model version
+  format: "saved_model" # Model format (saved_model, h5, onnx, pb, tflite)
 
 #------------------------------------------------------------------------------
 # Model Performance Requirements
@@ -24,11 +24,11 @@ storage:
 # model validation.
 
 performance:
-  min_accuracy: 0.90
+  min_accuracy: 0.90  # classification accuracy
   max_inference_time: 100  # milliseconds
-  min_precision: 0.85
-  min_recall: 0.85
-  min_f1_score: 0.85
+  min_precision: 0.85 # classification precision
+  min_recall: 0.85 # classification recall
+  min_f1_score: 0.85 # classification F1 score
 
 #------------------------------------------------------------------------------
 # Model Versioning
@@ -38,8 +38,8 @@ performance:
 # development to production.
 
 versioning:
-  enable_git_tracking: true
-  save_training_code: true
-  save_config_snapshot: true
-  metadata_format: "json"
-  keep_last_n_versions: 5 
+  enable_git_tracking: true # Enable tracking of model code in Git
+  save_training_code: true # Save training code with model
+  save_config_snapshot: true # Save configuration with model
+  metadata_format: "json" # Metadata format (json, yaml, toml)
+  keep_last_n_versions: 5  # Number of versions to keep

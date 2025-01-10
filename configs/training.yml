@@ -8,11 +8,11 @@
 # layer sizes, activation functions, and other structural parameters.
 
 model:
-  hidden_layers: [128, 64]
-  activation: "relu"
-  dropout_rate: 0.2
-  input_shape: [28, 28]
-  output_classes: 10
+  hidden_layers: [ 128, 64 ] # Number of neurons in each hidden layer
+  activation: "relu" # Activation function for hidden layers
+  dropout_rate: 0.2 # Dropout rate for regularization
+  input_shape: [ 28, 28 ] # Shape of input data
+  output_classes: 10 # Number of output classes
 
 #------------------------------------------------------------------------------
 # Training Parameters
@@ -21,14 +21,14 @@ model:
 # number of epochs, learning rate, and data splitting ratios.
 
 training:
-  batch_size: 32
-  epochs: 10
-  learning_rate: 0.001
-  validation_split: 0.2
-  early_stopping_patience: 5
-  reduce_lr_patience: 3
-  reduce_lr_factor: 0.2
-  shuffle_buffer_size: 10000
+  batch_size: 32 # Number of samples per batch
+  epochs: 10 # Number of training epochs
+  learning_rate: 0.001 # Initial learning rate
+  validation_split: 0.2 # Fraction of training data for validation
+  early_stopping_patience: 5  # Number of epochs with no improvement
+  reduce_lr_patience: 3 # Number of epochs with no improvement
+  reduce_lr_factor: 0.2 # Factor to reduce learning rate
+  shuffle_buffer_size: 10000 # Buffer size for shuffling training data
 
 #------------------------------------------------------------------------------
 # Data Augmentation
@@ -37,9 +37,22 @@ training:
 # model generalization and prevent overfitting.
 
 augmentation:
-  enabled: true
-  rotation_range: 10
-  width_shift: 0.1
-  height_shift: 0.1
-  zoom_range: 0.1
-  horizontal_flip: false 
+  enabled: true # Enable data augmentation
+  rotation_range: 10 # Rotation range in degrees
+  width_shift: 0.1 # Width shift range
+  height_shift: 0.1 # Height shift range
+  zoom_range: 0.1 # Zoom range
+  horizontal_flip: false  # Randomly flip images horizontally
+
+#------------------------------------------------------------------------------
+# Regularization
+#------------------------------------------------------------------------------
+# Settings for regularization techniques to prevent overfitting during
+# training. These include L1 and L2 regularization, dropout, and early
+# stopping.
+
+regularization:
+  l1: 0.0 # L1 regularization
+  l2: 0.0 # L2 regularization
+  dropout: 0.0 # Dropout rate
+  early_stopping: false # Enable early stopping

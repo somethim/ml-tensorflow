@@ -1,4 +1,3 @@
-import logging
 from pathlib import Path
 from typing import Optional, Tuple
 
@@ -8,11 +7,9 @@ import tensorflow as tf
 from keras import Input, Sequential
 from keras.src.layers import Dense, Flatten
 
-from src.settings import config
+from src.settings import config, logger
 from src.training.evaluate import evaluate_model
 from src.utils.save_model import SaveModel
-
-logger = logging.getLogger(__name__)
 
 
 def __load_data(data_path: Path) -> Tuple[tf.Tensor, tf.Tensor]:

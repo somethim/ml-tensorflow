@@ -10,13 +10,13 @@
 # training or inference.
 
 data:
-  base_dir: "None"
-  raw_dir: "raw"
-  processed_dir: "processed"
-  cache_dir: ".cache"
-  temp_dir: "/tmp/ml-tensorflow"
-  max_cache_size: 10  # GB
-  compression_format: "gzip"
+  base_dir: "data" # Base directory for data storage
+  raw_dir: "data/raw" # Directory for raw data
+  processed_dir: "data/processed" # Directory for processed data
+  cache_dir: ".cache" # Directory for cached data
+  temp_dir: "data/tmp/ml-tensorflow" # Temporary directory
+  max_cache_size: 10  # GB (0 for unlimited)
+  compression_format: "gzip" # Compression format for cached data
 
 #------------------------------------------------------------------------------
 # Logging and Monitoring
@@ -26,11 +26,25 @@ data:
 # and performance.
 
 monitoring:
-  log_level: "INFO"
-  enable_file_logging: true
-  log_dir: "logs"
+  logger_name: "ml-tensorflow" # Name of the logger
+  log_level: "info" # debug, info, success, warning, error, critical
+  enable_file_logging: true # Save logs to a file
+  store_verbose_logs: true # Store verbose logs in memory
+  log_dir: "logs" # Directory to save logs
   monitoring_interval: 60  # seconds
-  alert_threshold: 0.85
-  enable_mlflow: true
-  enable_wandb: false
-  metrics_tracking: true 
+  alert_threshold: 0.85 # Threshold for alerts
+  enable_mlflow: true # Enable MLflow for experiment tracking
+  enable_wandb: false # Enable Weights & Biases for experiment tracking
+  metrics_tracking: true # Enable tracking of metrics
+
+#------------------------------------------------------------------------------
+# TensorBoard Visualization
+#------------------------------------------------------------------------------
+# Configuration for TensorBoard, the visualization tool for TensorFlow.
+# These settings control how TensorBoard is configured and used.
+
+tensorboard:
+  enable: true # Enable TensorBoard
+  log_dir: "logs/tensorboard" # Directory to save TensorBoard logs
+  port: 6006 # Port for TensorBoard server
+  update_interval: 60  # seconds (0 for no updates)

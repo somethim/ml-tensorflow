@@ -38,3 +38,10 @@ ENV/
 .coverage
 .pytest_cache/
 htmlcov/
+
+
+# Data and models
+data/
+models/
+logs/
+notebooks/

@@ -1,9 +1,10 @@
 """Linting checks module."""
 
-import logging
 import subprocess
 from dataclasses import dataclass, field
 from typing import List
+
+from src.settings import logger
 
 
 @dataclass(frozen=True)
@@ -31,14 +32,14 @@ class LintCommand:
 
 def run_command(command: List[str], description: str) -> bool:
     """Run a shell command and print its output."""
-    logging.info(f"Running {description}...")
+    logger.info(f"Running {description}...")
     result = subprocess.run(command, capture_output=True, text=True)
     if result.returncode != 0:
-        logging.warning(f"{description} failed:")
-        logging.warning(result.stdout)
-        logging.warning(result.stderr)
+        logger.warning(f"{description} failed:")
+        logger.warning(result.stdout)
+        logger.warning(result.stderr)
         return False
-    logging.info(f"{description} passed!")
+    logger.info(f"{description} passed!")
     return True
 
 
@@ -70,7 +71,7 @@ def run_lint() -> bool:
     Returns:
         bool: True if all linters passed, False if any failed
     """
-    logging.info("Running linters...\n")
+    logger.info("Running linters...")
 
     linters = get_linters()
     failed = False
@@ -80,8 +81,8 @@ def run_lint() -> bool:
             failed = True
 
     if failed:
-        logging.warning("\nLinting failed!")
+        logger.error("Linting failed!")
         return False
 
-    logging.info("\nAll linters passed!")
+    logger.success("All linters passed!")
     return True

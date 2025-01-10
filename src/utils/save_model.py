@@ -1,16 +1,13 @@
 """Model saving and versioning utilities."""
 
 import json
-import logging
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Protocol
 
 import keras
 
-from src.settings import config
-
-logger = logging.getLogger(__name__)
+from src.settings import config, logger
 
 
 class SupportsWrite(Protocol):

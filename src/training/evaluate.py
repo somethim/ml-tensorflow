@@ -1,11 +1,10 @@
-import logging
 from pathlib import Path
 from typing import Any, Dict, Optional
 
 import keras
 import numpy as np
 
-logger = logging.getLogger(__name__)
+from src.settings import logger
 
 
 def evaluate_model(
