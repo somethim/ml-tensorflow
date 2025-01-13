@@ -25,23 +25,27 @@ exporting them for various deployment targets.
 
 ```
 .
-├── tools/               # Continuous Integration configs
-├── config/           # Configuration files
-├── data/
-│   ├── processed/    # Preprocessed data
-│   └── raw/         # Original data
-├── logs/
-│   └── tensorboard/ # Training logs
-├── models/
-│   ├── checkpoints/ # Training checkpoints
-│   ├── exported/    # Production-ready exports
-│   │   ├── tfjs/   # TensorFlow.js models
-│   │   ├── tflite/ # TensorFlow Lite models
-│   │   └── serving/ # TensorFlow Serving models
-│   └── saved_models/# Saved TensorFlow models
-├── notebooks/       # Jupyter notebooks
-├── src/             # Source code
-└── tests/           # Test files
+├── config/                            # Configuration files
+├── data/                              # Data files
+│   ├── processed/                     # Preprocessed data
+│   └── raw/                           # Original data
+├── logs/                              # Logs
+│   ├── tensorboard/                   # Training logs   
+│   └── app.log                        # Application logs
+├── models/                            # Models
+│   ├── checkpoints/                   # Training checkpoints
+│   ├── exported/                      # Production-ready exports
+│   │   ├── tfjs/                      # TensorFlow.js models
+│   │   ├── tflite/                    # TensorFlow Lite models
+│   │   └── serving/                   # TensorFlow Serving models
+│   └── saved_models/                  # Saved TensorFlow models
+│       └── {version}_{timestamp}/     # Models with version and timestamp
+│           ├── metadata.json          # Model metadata
+│           ├── model.keras            # Keras model
+│           └── model.h5               # Saved model
+├── notebooks/                         # Jupyter notebooks
+├── src/                               # Source code
+│   └── tools/                         # Continuous Integration configs
 ```
 
 ## Setup
@@ -90,7 +94,7 @@ Use the provided Jupyter notebooks in `notebooks/`:
 # Train a model
 poetry run ml train --settings settings/default.py
 
-# Monitor training
+# Monitor data
 tensorboard --logdir logs/tensorboard
 ```
 

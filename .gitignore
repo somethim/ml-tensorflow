@@ -45,3 +45,5 @@ data/
 models/
 logs/
 notebooks/
+
+!src/**

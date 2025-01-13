@@ -73,6 +73,18 @@ class MonitoringConfig(BaseModel):
     metrics_tracking: bool = Field(default=True, description="Enable metrics tracking")
 
 
+class PredictionConfig(BaseModel):
+    """Prediction configuration settings."""
+
+    batch_processing: bool = Field(default=False, description="Enable batch processing")
+    cache_predictions: bool = Field(default=True, description="Cache prediction results")
+    timeout_ms: int = Field(default=1000, description="Prediction timeout in milliseconds")
+    return_probabilities: bool = Field(default=False, description="Return class probabilities")
+    enable_preprocessing: bool = Field(default=True, description="Enable data preprocessing")
+    enable_postprocessing: bool = Field(default=True, description="Enable data postprocessing")
+    log_predictions: bool = Field(default=True, description="Log prediction results")
+
+
 def _load_all_configs() -> Dict[str, Any]:
     """Load all configuration files."""
     config_dir = Path("configs")
@@ -101,8 +113,9 @@ class Config:
         # Initialize configurations
         self.model = ModelConfig(**self._get_config_with_env("model", "storage"))
         self.training = TrainingConfig(**self._get_config_with_env("training", "training"))
-        self.data = DataConfig(**self._get_config_with_env("data", "data"))
+        self.data = DataConfig(**self._get_config_with_env("environment", "data"))
         self.monitoring = MonitoringConfig(**self._get_config_with_env("environment", "monitoring"))
+        self.prediction = PredictionConfig(**self._get_config_with_env("model", "prediction"))
 
     def _get_config_with_env(self, config_file: str, section: str) -> dict[str, Any]:
         """Get configuration with environment variable overrides."""

@@ -89,7 +89,7 @@ def setup_logging() -> bool:
 
         # Add file handler if enabled
         if config.monitoring.enable_file_logging:
-            file_handler = logging.FileHandler(log_dir / "app.log", mode="w")
+            file_handler = logging.FileHandler(log_dir / "app.log", mode="a")
             file_handler.setFormatter(file_formatter)
             file_handler.setLevel(log_level)
             app_logger.addHandler(file_handler)

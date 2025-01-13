@@ -43,3 +43,19 @@ versioning:
   save_config_snapshot: true # Save configuration with model
   metadata_format: "json" # Metadata format (json, yaml, toml)
   keep_last_n_versions: 5  # Number of versions to keep
+
+
+#------------------------------------------------------------------------------
+# Model Prediction
+#------------------------------------------------------------------------------
+# Configuration for model prediction and inference. These settings control
+# how models are loaded and used to make predictions on new data.
+
+prediction:
+  batch_processing: true  # Enable/disable batch processing
+  cache_predictions: false  # Enable/disable prediction caching
+  timeout_ms: 5000  # Prediction timeout in milliseconds
+  return_probabilities: true  # Return probability scores with predictions
+  enable_preprocessing: true  # Enable input preprocessing
+  enable_postprocessing: true  # Enable output postprocessing
+  log_predictions: false  # Log predictions for monitoring

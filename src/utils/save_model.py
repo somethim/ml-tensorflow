@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Protocol
 
 import keras
+import tensorflow as tf
 
 from src.settings import config, logger
 
@@ -33,7 +34,7 @@ class SaveModel:
         self.min_accuracy = config.model.min_accuracy
 
     def save(self, model: keras.Model, metrics: Dict[str, Dict[str, Any]]) -> Path:
-        """Save model and version info with metrics.
+        """Save model and version info with metrics in both Keras and TensorFlow formats.
 
         Args:
             model: The trained Keras model to save
@@ -50,10 +51,15 @@ class SaveModel:
         version_dir = self.base_dir / version
         version_dir.mkdir(parents=True, exist_ok=True)
 
-        # Save the model in the version directory with .keras extension
-        model_path = version_dir / "model.keras"
-        model.save(model_path)
-        logger.info(f"Model saved to: {model_path}")
+        # Save in Keras format (.keras)
+        keras_path = version_dir / "model.keras"
+        model.save(keras_path)
+        logger.info(f"Keras model saved to: {keras_path}")
+
+        # Save in TensorFlow SavedModel format
+        tf_path = version_dir / "tensorflow_model"
+        tf.saved_model.save(model, str(tf_path))
+        logger.info(f"TensorFlow model saved to: {tf_path}")
 
         # Save metadata
         version_info = {
@@ -61,7 +67,8 @@ class SaveModel:
             "path": str(version_dir),
             "timestamp": datetime.now().isoformat(),
             "metrics": metrics,
-            "model_path": str(model_path),
+            "keras_model_path": str(keras_path),
+            "tensorflow_model_path": str(tf_path),
             "production_ready": self._is_production_ready(
                 metrics.get("evaluation", {}).get("metrics", {})
             ),

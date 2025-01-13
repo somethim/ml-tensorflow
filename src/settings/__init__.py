@@ -5,3 +5,5 @@ from src.settings.logger import Logging, setup_logging
 
 config = _load_config()
 logger = Logging()
+
+__all__ = ["config", "logger"]
