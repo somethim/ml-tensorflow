@@ -4,12 +4,11 @@ from typing import Any, Dict, Optional, Tuple
 import keras
 import numpy as np
 import numpy.typing as npt
-from keras import Input, Sequential
+from keras import Input
 from keras.src.layers import Conv2D, Dense, Dropout, Flatten, MaxPooling2D
 
 from src.settings import config, logger
 from src.utils.preprocessor_factory import PreprocessorFactory
-from src.utils.save_model import SaveModel
 
 
 class TrainModel:
@@ -55,55 +54,56 @@ class TrainModel:
         logger.info(f"Loading data from {data_path}")
 
         data = np.load(data_path / "data.npz")
-        return data["features"], data["labels"]
+        features, labels = data["features"], data["labels"]
 
-    def __create_model(self) -> Sequential:
+        # Ensure features are float32 and in range [0, 255]
+        features = features.astype(np.float32)
+        if features.max() <= 1.0:
+            features *= 255.0
+
+        # Ensure labels are properly formatted integers
+        labels = labels.astype(np.int32)
+
+        return features, labels
+
+    def __create_model(self) -> keras.Model:
         """Create and compile the model based on configuration."""
-        # Use model_config to customize architecture, or fall back to default CNN
-        layers = self.model_config.get(
-            "layers",
+        model = keras.Sequential(
             [
+                # Input and preprocessing
                 Input(shape=self.input_shape),
+                keras.layers.Rescaling(1.0 / 255),
+                # Data augmentation
+                keras.layers.RandomFlip("horizontal"),
+                keras.layers.RandomRotation(0.1),
                 # First convolutional block
-                Conv2D(32, (3, 3), activation="relu", padding="same"),
-                Conv2D(32, (3, 3), activation="relu"),
-                MaxPooling2D(pool_size=(2, 2)),
-                Dropout(0.25),
-                # Second convolutional block
                 Conv2D(64, (3, 3), activation="relu", padding="same"),
                 Conv2D(64, (3, 3), activation="relu"),
                 MaxPooling2D(pool_size=(2, 2)),
-                Dropout(0.25),
-                # Third convolutional block
+                Dropout(0.2),
+                # Second convolutional block
                 Conv2D(128, (3, 3), activation="relu", padding="same"),
                 Conv2D(128, (3, 3), activation="relu"),
                 MaxPooling2D(pool_size=(2, 2)),
-                Dropout(0.25),
+                Dropout(0.2),
+                # Third convolutional block
+                Conv2D(256, (3, 3), activation="relu", padding="same"),
+                Conv2D(256, (3, 3), activation="relu"),
+                MaxPooling2D(pool_size=(2, 2)),
+                Dropout(0.2),
                 # Dense layers
                 Flatten(),
                 Dense(512, activation="relu"),
-                Dropout(0.5),
+                Dropout(0.3),
                 Dense(self.num_classes, activation="softmax"),
-            ],
+            ]
         )
 
-        model = Sequential(layers)
-
-        # Get compilation parameters from config or use defaults
-        optimizer = self.model_config.get("optimizer", "adam")
-        loss = self.model_config.get("loss", "sparse_categorical_crossentropy")
-        metrics = self.model_config.get(
-            "metrics",
-            [
-                keras.metrics.SparseCategoricalAccuracy(name="accuracy"),
-                keras.metrics.SparseTopKCategoricalAccuracy(k=3, name="top_3_accuracy"),
-            ],
-        )
-
+        # Compile model
         model.compile(
-            optimizer=optimizer,
-            loss=loss,
-            metrics=metrics,
+            optimizer=keras.optimizers.Adam(learning_rate=0.001),
+            loss="sparse_categorical_crossentropy",
+            metrics=["accuracy"],
         )
         return model
 
@@ -117,46 +117,40 @@ class TrainModel:
     ) -> Path:
         """Train a model on the provided data, evaluate it, and save results."""
         try:
-            # Load data and create model
+            # Load and validate data
             if not train_data.exists():
                 raise ValueError(f"Invalid data directory: {train_data}")
 
             x_train, y_train = self.__load_data(train_data)
             x_val, y_val = self.__load_data(evaluate_data)
 
-            model = self.__create_model()
+            # Print data statistics
+            logger.info(f"Training data shape: {x_train.shape}")
+            logger.info(f"Training labels shape: {y_train.shape}")
+            logger.info(f"Number of classes: {len(np.unique(y_train))}")
 
-            # Train the model
+            # Create and train model
+            model = self.__create_model()
             logger.info("Starting model training...")
-            history = model.fit(
+
+            model.fit(
                 x_train,
                 y_train,
                 validation_data=(x_val, y_val),
-                epochs=epochs or self.config.training.epochs,
-                batch_size=batch_size or self.config.training.batch_size,
+                epochs=epochs or 50,
+                batch_size=batch_size or 32,
                 verbose=1,
             )
 
             # Save the model
             logger.info("Saving model...")
             save_dir = Path(save_path) if save_path else Path(self.config.model.saved_models_dir)
-            saver = SaveModel(save_dir)
-            save_path = saver.save(
-                model=model,
-                metrics={
-                    "training": {
-                        "history": history.history,
-                        "parameters": {
-                            "epochs": epochs or self.config.training.epochs,
-                            "batch_size": batch_size or self.config.training.batch_size,
-                            "train_samples": len(x_train),
-                            "val_samples": len(x_val),
-                        },
-                    },
-                },
-            )
+            save_dir.mkdir(parents=True, exist_ok=True)
+            model_path = save_dir / "model.keras"
+            model.save(model_path)
 
-            return save_path
+            return model_path
 
         except Exception as e:
+            logger.error(f"Training failed: {str(e)}")
             raise RuntimeError(f"Training failed: {str(e)}")

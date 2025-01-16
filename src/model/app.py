@@ -60,7 +60,7 @@ class MLApp:
         preprocessor_type: Optional[str] = None,
         preprocess_kwargs: Optional[Dict[str, Any]] = None,
         extra_kwargs: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Dict[str, Union[int, float, list[float]]]]:
+    ) -> Dict[str, Dict[str, Union[int, float, str, list[float]]]]:
         """Make predictions using the trained model.
 
         Args:

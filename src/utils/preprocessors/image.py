@@ -79,6 +79,15 @@ class ImageProcessor(BaseProcessor):
                     img_tensor = tf.image.resize_with_pad(img_tensor, max_dim, max_dim)
                 img_tensor = tf.image.resize(img_tensor, target_size, method="bilinear")
 
+                # Ensure the tensor has the correct shape (height, width, channels)
+                if len(img_tensor.shape) == 2:
+                    img_tensor = tf.expand_dims(img_tensor, axis=-1)
+                elif len(img_tensor.shape) == 3 and img_tensor.shape[-1] != channels:
+                    if channels == 1:
+                        img_tensor = tf.reduce_mean(img_tensor, axis=-1, keepdims=True)
+                    elif channels == 3 and img_tensor.shape[-1] == 1:
+                        img_tensor = tf.image.grayscale_to_rgb(img_tensor)
+
             if normalize:
                 min_val, max_val = normalize_range
                 min_tensor = tf.reduce_min(img_tensor)
@@ -91,6 +100,15 @@ class ImageProcessor(BaseProcessor):
             result_array = img_tensor.numpy()
             if channels == 1:
                 result_array = np.squeeze(result_array)
+
+            # Ensure result has shape (height, width, channels)
+            if len(result_array.shape) == 2:
+                result_array = np.expand_dims(result_array, axis=-1)
+            elif len(result_array.shape) == 3 and result_array.shape[-1] != channels:
+                if channels == 1:
+                    result_array = np.mean(result_array, axis=-1, keepdims=True)
+                elif channels == 3 and result_array.shape[-1] == 1:
+                    result_array = np.repeat(result_array, 3, axis=-1)
 
             # Explicitly cast to ensure correct type
             return cast(NDArray, result_array.astype(np.float32))

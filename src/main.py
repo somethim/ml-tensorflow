@@ -28,7 +28,9 @@ def get_latest_saved_version() -> str:
     return latest_version.split("_")[0] if "_" in latest_version else latest_version
 
 
-def print_predictions(predictions: Dict[str, Dict[str, Union[int, float, list[float]]]]) -> None:
+def print_predictions(
+    predictions: Dict[str, Dict[str, Union[int, float, str, list[float]]]]
+) -> None:
     min_accuracy = config.model.min_accuracy
     for model_type, result in predictions.items():
         confidence = result.get("confidence", 0.0)

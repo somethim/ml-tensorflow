@@ -1,5 +1,6 @@
 """Module for managing model operations including data and prediction."""
 
+import json
 import time
 from pathlib import Path
 from typing import Any, Dict, Optional, Tuple, Union
@@ -14,7 +15,7 @@ from src.utils import PreprocessorFactory
 
 # Type aliases for cleaner type hints
 NDArray = npt.NDArray[np.float32]
-PredictionResults = Dict[str, Dict[str, Union[int, float, list[float]]]]
+PredictionResults = Dict[str, Dict[str, Union[int, float, str, list[float]]]]
 
 
 class PredictModel:
@@ -33,13 +34,28 @@ class PredictModel:
         self.keras_model: Optional[tf.keras.Model] = None  # noqa
         self.tf_model: Optional[tf.keras.Model] = None  # noqa
         self._prediction_cache: Dict[str, PredictionResults] = {}
+        self._class_mapping: Optional[Dict[str, int]] = None
+        self._idx_to_class: Optional[Dict[int, str]] = None
+
+    def _load_class_mapping(self) -> None:
+        """Load class mapping from the processed data directory."""
+        if self._class_mapping is None:
+            mapping_file = Path(self.config.data.processed_dir) / "class_mapping.json"
+            if not mapping_file.exists():
+                raise FileNotFoundError(f"Class mapping file not found: {mapping_file}")
+
+            with open(mapping_file) as f:
+                self._class_mapping = json.load(f)
+                # Create reverse mapping (index to class name)
+                self._idx_to_class = {v: k for k, v in self._class_mapping.items()}
+                self._idx_to_class = {v: k for k, v in self._class_mapping.items()}
 
     def _evaluate(
-        self,
-        start_time: float,
-        input_data: Union[NDArray, tf.Tensor],
-        extra_kwargs: Dict[str, Any],
-        results: PredictionResults,
+            self,
+            start_time: float,
+            input_data: Union[NDArray, tf.Tensor],
+            extra_kwargs: Dict[str, Any],
+            results: PredictionResults,
     ) -> PredictionResults:
         """Evaluate the input data using both models.
 
@@ -63,20 +79,35 @@ class PredictModel:
         if self.keras_model is None:
             raise ValueError("Keras model not loaded")
 
+        # Load class mapping if not already loaded
+        if self._idx_to_class is None:
+            self._load_class_mapping()
+
+        # After loading, we can assert the mapping exists
+        assert self._idx_to_class is not None, "Class mapping not loaded"
+
         # Apply any model-specific preprocessing from extra_kwargs
         model_input = input_data
-        if extra_kwargs.get("add_batch_dim", False) and len(input_data.shape) == 2:
-            model_input = (
-                np.expand_dims(input_data, 0)
-                if isinstance(input_data, np.ndarray)
-                else tf.expand_dims(input_data, 0)
-            )
+        if extra_kwargs.get("add_batch_dim", False):
+            # Ensure input has shape (height, width, channels) before adding batch dimension
+            if len(model_input.shape) == 2:
+                if isinstance(model_input, np.ndarray):
+                    model_input = np.expand_dims(model_input, axis=-1)
+                else:
+                    model_input = tf.expand_dims(model_input, axis=-1)
+
+            # Add batch dimension if not present
+            if len(model_input.shape) == 3:
+                if isinstance(model_input, np.ndarray):
+                    model_input = np.expand_dims(model_input, axis=0)
+                else:
+                    model_input = tf.expand_dims(model_input, axis=0)
 
         # Keras prediction
         keras_prediction = self.keras_model.predict(model_input)
-        keras_digit = tf.argmax(keras_prediction[0]).numpy()
+        keras_digit = int(tf.argmax(keras_prediction[0]).numpy())
         results["keras"] = {
-            "digit": int(keras_digit),
+            "class": self._idx_to_class[keras_digit],
             "confidence": float(keras_prediction[0][keras_digit]),
         }
 
@@ -94,10 +125,10 @@ class PredictModel:
         input_name = list(infer.structured_input_signature[1].keys())[0]
         tf_prediction = infer(**{input_name: model_input})
         tf_probs = tf_prediction["output_0"].numpy()[0]
-        tf_digit = tf.argmax(tf_probs).numpy()
+        tf_digit = int(tf.argmax(tf_probs).numpy())
 
         results["tensorflow"] = {
-            "digit": int(tf_digit),
+            "class": self._idx_to_class[tf_digit],
             "confidence": float(tf_probs[tf_digit]),
         }
 
@@ -116,14 +147,14 @@ class PredictModel:
         Returns:
             Post-processed results
         """
-        if results["keras"]["digit"] == results["tensorflow"]["digit"]:
+        if results["keras"]["class"] == results["tensorflow"]["class"]:
             keras_conf = results["keras"].get("confidence", 0.0)
             tf_conf = results["tensorflow"].get("confidence", 0.0)
             if not isinstance(keras_conf, (int, float)) or not isinstance(tf_conf, (int, float)):
                 raise ValueError("Confidence values must be numeric")
 
             results["ensemble"] = {
-                "digit": results["keras"]["digit"],
+                "class": results["keras"]["class"],
                 "confidence": (float(keras_conf) + float(tf_conf)) / 2,
             }
 
@@ -196,11 +227,11 @@ class PredictModel:
         return cache_key
 
     def predict(
-        self,
-        input_data: Union[str, Path, NDArray, tf.Tensor],
-        preprocessor_type: Optional[str] = None,
-        preprocess_kwargs: Optional[Dict[str, Any]] = None,
-        extra_kwargs: Optional[Dict[str, Any]] = None,
+            self,
+            input_data: Union[str, Path, NDArray, tf.Tensor],
+            preprocessor_type: Optional[str] = None,
+            preprocess_kwargs: Optional[Dict[str, Any]] = None,
+            extra_kwargs: Optional[Dict[str, Any]] = None,
     ) -> PredictionResults:
         """Make predictions using both Keras and TensorFlow models.
 

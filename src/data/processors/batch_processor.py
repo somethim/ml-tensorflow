@@ -33,6 +33,9 @@ class BatchProcessor:
     ) -> None:
         """Save a batch of processed data to a file."""
         features_array = np.stack(features)
+        # Ensure features have shape (batch_size, height, width, channels)
+        if len(features_array.shape) == 3:
+            features_array = np.expand_dims(features_array, axis=-1)
         labels_array = np.array(labels, dtype=np.int32)
         np.savez(file_path, features=features_array, labels=labels_array)
 
