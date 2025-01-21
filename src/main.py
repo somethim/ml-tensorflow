@@ -15,7 +15,7 @@ from tools.lint import run_lint
 
 def get_latest_saved_version() -> str:
     """Get the version of the latest saved model (only the base version part before timestamp)."""
-    model_dir = Path(config.model.saved_models_dir)
+    model_dir = Path(config.environment.path.model_dir)
     if not model_dir.exists():
         return ""
 
@@ -31,7 +31,7 @@ def get_latest_saved_version() -> str:
 def print_predictions(
     predictions: Dict[str, Dict[str, Union[int, float, str, list[float]]]]
 ) -> None:
-    min_accuracy = config.model.min_accuracy
+    min_accuracy = config.training.metrics.min_accuracy
     for model_type, result in predictions.items():
         confidence = result.get("confidence", 0.0)
         if not isinstance(confidence, (int, float)):
@@ -58,8 +58,8 @@ def train(current_version: str, latest_saved_version: str) -> None:
     )
 
     # Prepare the dataset if needed
-    raw_data_dir = Path(config.data.raw_dir)
-    processed_dir = Path(config.data.processed_dir)
+    raw_data_dir = Path(config.environment.path.data_dir) / "raw"
+    processed_dir = Path(config.environment.path.data_dir) / "processed"
     train_dir = processed_dir / "train"
     val_dir = processed_dir / "val"
     train_data = train_dir / "data.npz"
@@ -117,7 +117,7 @@ def main() -> None:
         if not input_data.is_file():
             raise ValueError(f"Image path is not a file: {args.image}")
 
-        current_version = config.model.version
+        current_version = config.model.storage.version
         latest_saved_version = get_latest_saved_version()
         if current_version != latest_saved_version or args.force:
             train(current_version, latest_saved_version)

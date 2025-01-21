@@ -27,9 +27,8 @@ class PredictModel:
         Args:
             model_dir: Optional directory containing saved models. If None, uses config default.
         """
-        self.config = config
         self.model_dir = (
-            Path(self.config.model.saved_models_dir) if model_dir is None else Path(model_dir)
+            Path(config.environment.path.model_dir) if model_dir is None else Path(model_dir)
         )
         self.keras_model: Optional[tf.keras.Model] = None  # noqa
         self.tf_model: Optional[tf.keras.Model] = None  # noqa
@@ -40,7 +39,7 @@ class PredictModel:
     def _load_class_mapping(self) -> None:
         """Load class mapping from the processed data directory."""
         if self._class_mapping is None:
-            mapping_file = Path(self.config.data.processed_dir) / "class_mapping.json"
+            mapping_file = self.model_dir / "class_mapping.json"
             if not mapping_file.exists():
                 raise FileNotFoundError(f"Class mapping file not found: {mapping_file}")
 
@@ -51,11 +50,11 @@ class PredictModel:
                 self._idx_to_class = {v: k for k, v in self._class_mapping.items()}
 
     def _evaluate(
-            self,
-            start_time: float,
-            input_data: Union[NDArray, tf.Tensor],
-            extra_kwargs: Dict[str, Any],
-            results: PredictionResults,
+        self,
+        start_time: float,
+        input_data: Union[NDArray, tf.Tensor],
+        extra_kwargs: Dict[str, Any],
+        results: PredictionResults,
     ) -> PredictionResults:
         """Evaluate the input data using both models.
 
@@ -72,7 +71,7 @@ class PredictModel:
             TimeoutError: If evaluation time exceeds timeout
             ValueError: If models are not loaded
         """
-        timeout = self.config.prediction.timeout_ms / 1000
+        timeout = config.model.prediction.timeout_ms / 1000
         if time.time() - start_time > timeout:
             raise TimeoutError("Prediction timeout exceeded")
 
@@ -111,7 +110,7 @@ class PredictModel:
             "confidence": float(keras_prediction[0][keras_digit]),
         }
 
-        if self.config.prediction.return_probabilities:
+        if config.model.prediction.return_probabilities:
             results["keras"]["probabilities"] = keras_prediction[0].tolist()
 
         # TensorFlow prediction
@@ -132,7 +131,7 @@ class PredictModel:
             "confidence": float(tf_probs[tf_digit]),
         }
 
-        if self.config.prediction.return_probabilities:
+        if config.model.prediction.return_probabilities:
             results["tensorflow"]["probabilities"] = tf_probs.tolist()
 
         return results
@@ -169,7 +168,7 @@ class PredictModel:
         Raises:
             FileNotFoundError: If no models are found
         """
-        model_dir = Path(self.config.model.saved_models_dir)
+        model_dir = Path(config.environment.path.model_dir)
 
         version_dirs = [d for d in model_dir.iterdir() if d.is_dir()]
         if not version_dirs:
@@ -188,7 +187,7 @@ class PredictModel:
                 version_groups[version] = dir_path
 
         # Try to find the current version first
-        current_version = self.config.model.version
+        current_version = config.model.storage.version
         if current_version in version_groups:
             latest_dir = version_groups[current_version]
         else:
@@ -227,11 +226,11 @@ class PredictModel:
         return cache_key
 
     def predict(
-            self,
-            input_data: Union[str, Path, NDArray, tf.Tensor],
-            preprocessor_type: Optional[str] = None,
-            preprocess_kwargs: Optional[Dict[str, Any]] = None,
-            extra_kwargs: Optional[Dict[str, Any]] = None,
+        self,
+        input_data: Union[str, Path, NDArray, tf.Tensor],
+        preprocessor_type: Optional[str] = None,
+        preprocess_kwargs: Optional[Dict[str, Any]] = None,
+        extra_kwargs: Optional[Dict[str, Any]] = None,
     ) -> PredictionResults:
         """Make predictions using both Keras and TensorFlow models.
 
@@ -265,7 +264,7 @@ class PredictModel:
         # Generate cache key for preprocessed data
         cache_key = (
             self._cache_predictions(processed_input)
-            if self.config.prediction.cache_predictions
+            if config.model.prediction.cache_predictions
             else None
         )
         if cache_key and cache_key in self._prediction_cache:
@@ -282,10 +281,10 @@ class PredictModel:
             results = self._evaluate(start_time, processed_input, extra_kwargs or {}, results)
         except TimeoutError as e:
             raise TimeoutError(
-                f"Prediction timeout exceeded: {self.config.prediction.timeout_ms}ms"
+                f"Prediction timeout exceeded: {config.model.prediction.timeout_ms}ms"
             ) from e
 
-        if self.config.prediction.enable_postprocessing:
+        if config.model.prediction.enable_postprocessing:
             results = self._post_processing(results)
 
         if cache_key:

@@ -9,41 +9,8 @@
 # and where they are loaded from during inference.
 
 storage:
-  base_dir: "models"  # Base directory for model storage
-  saved_models_dir: "models/saved_models" # Directory for saved models
-  checkpoints_dir: "models/checkpoints" # Directory for model checkpoints
-  tensorboard_dir: "logs/tensorboard" # Directory for TensorBoard logs
-  version: "v1" # Model version
   format: "saved_model" # Model format (saved_model, h5, onnx, pb, tflite)
-
-#------------------------------------------------------------------------------
-# Model Performance Requirements
-#------------------------------------------------------------------------------
-# Minimum performance thresholds that models must meet to be considered
-# production-ready. These metrics are checked after training and during
-# model validation.
-
-performance:
-  min_accuracy: 0.90  # classification accuracy
-  max_inference_time: 100  # milliseconds
-  min_precision: 0.85 # classification precision
-  min_recall: 0.85 # classification recall
-  min_f1_score: 0.85 # classification F1 score
-
-#------------------------------------------------------------------------------
-# Model Versioning
-#------------------------------------------------------------------------------
-# Settings for model versioning and tracking. These control how models
-# are versioned, tagged, and tracked through their lifecycle from
-# development to production.
-
-versioning:
-  enable_git_tracking: true # Enable tracking of model code in Git
-  save_training_code: true # Save training code with model
-  save_config_snapshot: true # Save configuration with model
-  metadata_format: "json" # Metadata format (json, yaml, toml)
-  keep_last_n_versions: 5  # Number of versions to keep
-
+  version: "v1" # Model version
 
 #------------------------------------------------------------------------------
 # Model Prediction

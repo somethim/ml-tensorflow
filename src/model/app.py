@@ -29,7 +29,7 @@ class MLApp:
         """
         try:
             # Load class mapping to determine number of classes
-            processed_dir = Path(config.data.processed_dir)
+            processed_dir = Path(config.environment.path.data_dir) / "processed"
             with open(processed_dir / "class_mapping.json") as f:
                 class_mapping = json.load(f)
             num_classes = len(class_mapping)

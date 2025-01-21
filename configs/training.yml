@@ -10,8 +10,9 @@
 model:
   hidden_layers: [ 128, 64 ] # Number of neurons in each hidden layer
   activation: "relu" # Activation function for hidden layers
+  optimizer: "adam" # Optimizer for training
   dropout_rate: 0.2 # Dropout rate for regularization
-  input_shape: [ 28, 28 ] # Shape of input data
+  input_shape: [ 28, 28, 1 ] # Shape of input data
   output_classes: 10 # Number of output classes
 
 #------------------------------------------------------------------------------
@@ -20,39 +21,25 @@ model:
 # Core parameters that control the training process including batch size,
 # number of epochs, learning rate, and data splitting ratios.
 
+
 training:
   batch_size: 32 # Number of samples per batch
   epochs: 10 # Number of training epochs
   learning_rate: 0.001 # Initial learning rate
   validation_split: 0.2 # Fraction of training data for validation
   early_stopping_patience: 5  # Number of epochs with no improvement
-  reduce_lr_patience: 3 # Number of epochs with no improvement
-  reduce_lr_factor: 0.2 # Factor to reduce learning rate
-  shuffle_buffer_size: 10000 # Buffer size for shuffling training data
 
 #------------------------------------------------------------------------------
-# Data Augmentation
+# Training Metrics
 #------------------------------------------------------------------------------
-# Settings for real-time data augmentation during training to improve
-# model generalization and prevent overfitting.
+# Metrics used to evaluate the model during training and validation.
+# These metrics are used to monitor model performance and make decisions
+# about training progress.
 
-augmentation:
-  enabled: true # Enable data augmentation
-  rotation_range: 10 # Rotation range in degrees
-  width_shift: 0.1 # Width shift range
-  height_shift: 0.1 # Height shift range
-  zoom_range: 0.1 # Zoom range
-  horizontal_flip: false  # Randomly flip images horizontally
 
-#------------------------------------------------------------------------------
-# Regularization
-#------------------------------------------------------------------------------
-# Settings for regularization techniques to prevent overfitting during
-# training. These include L1 and L2 regularization, dropout, and early
-# stopping.
+metrics:
+  min_accuracy: 0.90 # classification accuracy
+  min_precision: 0.85 # classification precision
+  min_recall: 0.85 # classification recall
+  min_f1_score: 0.85 # classification F1 score
 
-regularization:
-  l1: 0.0 # L1 regularization
-  l2: 0.0 # L2 regularization
-  dropout: 0.0 # Dropout rate
-  early_stopping: false # Enable early stopping

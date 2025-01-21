@@ -25,13 +25,13 @@ class SaveModel:
 
     def __init__(self, save_path: Optional[Path] = None) -> None:
         """Initialize model saving."""
-        self.base_dir = Path(config.model.saved_models_dir) if save_path is None else save_path
+        self.base_dir = Path(config.environment.path.model_dir) if save_path is None else save_path
 
         # Get required metrics and thresholds from settings
         self.required_metrics: List[str] = (
             config.model.required_metrics if hasattr(config.model, "required_metrics") else []
         )
-        self.min_accuracy = config.model.min_accuracy
+        self.min_accuracy = config.training.metrics.min_accuracy
 
     def save(self, model: keras.Model, metrics: Dict[str, Dict[str, Any]]) -> Path:
         """Save model and version info with metrics in both Keras and TensorFlow formats.
@@ -47,7 +47,7 @@ class SaveModel:
             ValueError: If required metrics are missing
         """
         # Create version-specific directory
-        version = f"{config.model.version}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        version = f"{config.model.storage.version}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         version_dir = self.base_dir / version
         version_dir.mkdir(parents=True, exist_ok=True)
 
@@ -121,7 +121,7 @@ class SaveModel:
             return False
 
         # Check inference time if specified
-        max_inference_time = config.model.max_inference_time
+        max_inference_time = config.model.prediction.timeout_ms
         if "inference_time" in metrics and metrics["inference_time"] > max_inference_time:
             return False
 

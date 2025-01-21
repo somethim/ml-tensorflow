@@ -32,7 +32,6 @@ class TrainModel:
             model_config: Configuration for model architecture (layers, activations, etc.)
             data_config: Configuration for data loading (normalization, preprocessing, etc.)
         """
-        self.config = config
         self.input_shape = input_shape
         self.num_classes = num_classes
         self.model_config = model_config or {}
@@ -144,7 +143,7 @@ class TrainModel:
 
             # Save the model
             logger.info("Saving model...")
-            save_dir = Path(save_path) if save_path else Path(self.config.model.saved_models_dir)
+            save_dir = Path(save_path) if save_path else Path(config.environment.path.model_dir)
             save_dir.mkdir(parents=True, exist_ok=True)
             model_path = save_dir / "model.keras"
             model.save(model_path)
